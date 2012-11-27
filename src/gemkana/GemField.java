@@ -257,6 +257,7 @@ public class GemField {
         return gemSequence;
     }
 
+    
     public boolean sequenceContainsLocation(ArrayList<Point> sequence, Point location) {
         for (Point point : sequence) {
             if (point.equals(location)) {
