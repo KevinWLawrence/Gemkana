@@ -38,6 +38,7 @@ public enum GemType {
     public static Color getColor(GemType gemType) {
         switch (gemType){
             case Emerald  : return Color.GREEN;
+            case Pearl    : return Color.LIGHT_GRAY;
             case Diamond  : return Color.WHITE;
             case Ruby     : return Color.RED;
             case Sapphire : return Color.BLUE;

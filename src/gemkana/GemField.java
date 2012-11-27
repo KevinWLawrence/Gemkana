@@ -15,11 +15,6 @@ import java.util.ArrayList;
 public class GemField {
 
 //    <editor-fold defaultstate="collapsed" desc="Properties">
-//    private Point[] selected = new Point[2];
-//    private static final Point EMPTY = new Point(-1, -1);
-//    private static final int FIRST_SELECTED = 0;
-//    private static final int SECOND_SELECTED = 1;
-//    private Point[] selected = {new Point(-1, -1), new Point(-1, -1)};
     private ArrayList<Point> selectedList = new ArrayList<Point>();
 
     /**
@@ -60,18 +55,8 @@ public class GemField {
             System.out.println("SWITCH ATTEMPT COMPLETE");
             selectedList.clear();
         }
-
-//        if (isLocationEmpty(getSelected()[FIRST_SELECTED])){
-//            getSelected()[FIRST_SELECTED] = location;
-//        } else if (isLocationEmpty(getSelected()[SECOND_SELECTED])){
-//            this.getSelected()[SECOND_SELECTED] = location;
-//            System.out.println("SWITCH ATTEMPT SHOULD HAPPEN NOW");
-//        }
     }
 
-//    private boolean isLocationEmpty(Point location){
-//        return (location.equals(EMPTY));
-//    }
     public boolean isSelected(Point location) {
         for (Point point : selectedList) {
             if (point.equals(location)) {
@@ -79,13 +64,9 @@ public class GemField {
             }
         }
 
-//        for (int i = 0; i < getSelected().length; i++) {
-//            if (location.equals(getSelected()[i])){
-//                return true;
-//            }
-//        }
         return false;
     }
+
     private Gem[][] gems;
 
     /**
@@ -149,6 +130,7 @@ public class GemField {
     }
 
 //    </editor-fold>
+    
 //    <editor-fold defaultstate="collapsed" desc="Methods">
     /**
      * Initialize the GemField with a randomized set of new Gems; this method
@@ -195,6 +177,7 @@ public class GemField {
         }
         return sequenceGems;
     }
+    
     private int base = 10;
     private int baseMultiplier = 1;
     private int bonusBoundary = 4;
@@ -223,7 +206,6 @@ public class GemField {
                 gemSequence.add(new Point(column, row));
 
                 //check the gems above the current position
-//                for (int i = Math.max(0, row-1); i >= 0; i--) {
                 for (int i = row - 1; i >= 0; i--) {
                     if (this.gems[column][i].getType() == type) {
                         gemSequence.add(new Point(column, i));
@@ -233,7 +215,6 @@ public class GemField {
                 }
 
                 //check the gems below the current position
-//                for (int i = Math.min(this.getRows(), row+1); i < this.getRows(); i++) {
                 for (int i = row + 1; i < this.getRows(); i++) {
                     if (this.gems[column][i].getType() == type) {
                         gemSequence.add(new Point(column, i));
@@ -249,10 +230,6 @@ public class GemField {
                 }
             }
         }
-
-//        if (gemSequence.size() < 3) {
-//            gemSequence.clear();
-//        }
 
         return gemSequence;
     }
@@ -272,6 +249,7 @@ public class GemField {
      * positions randomly.
      */
 //    </editor-fold>
+    
 //    <editor-fold defaultstate="collapsed" desc="Constructors">
     public GemField(Gem[][] gems) {
         this.gems = gems;

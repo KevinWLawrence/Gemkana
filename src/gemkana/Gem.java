@@ -50,45 +50,11 @@ public class Gem /*extends Actor*/ {
 //  <editor-fold defaultstate="collapsed" desc="Constructors">
     /**
      * Constructor, returns an instance of the Gem class
-     *
      * @param type the GemType to set
      */
     public Gem(GemType type) {
         this.type = type;
     }
 
-//    /**
-//     * Constructor, returns an instance of the Gem class
-//     *
-//     * @param image the image to set
-//     * @param position the position to set
-//     * @param velocity the image to set
-//     */
-//    public Gem(Image image, Point position, Velocity velocity) {
-//        super(position, velocity);
-//        setImage(image);
-//    }
-//
-//    /**
-//     * Constructor, returns an instance of the Actor class
-//     *
-//     * @param position the position to set
-//     * @param velocity the image to set
-//     */
-//    public Gem(Point position, Velocity velocity) {
-//        super(position, velocity);
-//    }
-//
-//    /**
-//     * Constructor, returns an instance of the Actor class
-//     *
-//     * @param position the position to set
-//     * @param velocity the image to set
-//     * @param angualrVelocity the angular velocity to set
-//     * @param angle the initial angle to set
-//     */
-//    public Gem(Point position, Velocity velocity, int angularVelocity, int angle) {
-//        super(position, velocity, angularVelocity, angle);
-//    }
     //  </editor-fold>
 }
