@@ -163,20 +163,20 @@ public class GemField {
         }
     }
 
-    public boolean[][] getSequenceGems() {
-        boolean[][] sequenceGems = new boolean[this.getColumns()][this.getRows()];
-
-        for (int column = 0; column < getColumns(); column++) {
-            for (int row = 0; row < getRows(); row++) {
-                if (this.types == null) {
-                    gems[column][row] = new Gem(GemType.getRandomGemType());
-                } else {
-                    gems[column][row] = new Gem(GemType.getRandomGemType(types));
-                }
-            }
-        }
-        return sequenceGems;
-    }
+//    public boolean[][] getSequenceGems() {
+//        boolean[][] sequenceGems = new boolean[this.getColumns()][this.getRows()];
+//
+//        for (int column = 0; column < getColumns(); column++) {
+//            for (int row = 0; row < getRows(); row++) {
+//                if (this.types == null) {
+//                    gems[column][row] = new Gem(GemType.getRandomGemType());
+//                } else {
+//                    gems[column][row] = new Gem(GemType.getRandomGemType(types));
+//                }
+//            }
+//        }
+//        return sequenceGems;
+//    }
     
     private int base = 10;
     private int baseMultiplier = 1;
