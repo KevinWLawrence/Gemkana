@@ -196,19 +196,20 @@ public class GemField {
     }
 
     public ArrayList<Point> getGemSequence() {
-        ArrayList<Point> gemSequence = new ArrayList<>();
+        ArrayList<Point> verticalSequence = new ArrayList<>();
+        ArrayList<Point> horizontalSequence = new ArrayList<>();
         GemType type;
 
         for (int column = 0; column < this.getColumns(); column++) {
             for (int row = 0; row < this.getRows(); row++) {
-                //North/South count
+                //Vertical sequence count
                 type = this.gems[column][row].getType();
-                gemSequence.add(new Point(column, row));
+                verticalSequence.add(new Point(column, row));
 
                 //check the gems above the current position
                 for (int i = row - 1; i >= 0; i--) {
                     if (this.gems[column][i].getType() == type) {
-                        gemSequence.add(new Point(column, i));
+                        verticalSequence.add(new Point(column, i));
                     } else {
                         break;
                     }
@@ -217,21 +218,58 @@ public class GemField {
                 //check the gems below the current position
                 for (int i = row + 1; i < this.getRows(); i++) {
                     if (this.gems[column][i].getType() == type) {
-                        gemSequence.add(new Point(column, i));
+                        verticalSequence.add(new Point(column, i));
                     } else {
                         break;
                     }
                 }
 
-                if (gemSequence.size() < 3) {
-                    gemSequence.clear();
+                if (verticalSequence.size() < 3) {
+                    verticalSequence.clear();
+                } 
+
+                //Horizontal sequence count
+                horizontalSequence.add(new Point(column, row));
+
+                //check the gems to the left of the current position
+                for (int i = column - 1; i >= 0; i--) {
+                    if (this.gems[i][row].getType() == type) {
+                        horizontalSequence.add(new Point(i, row));
+                    } else {
+                        break;
+                    }
+                }
+
+                //check the gems to the right of the current position
+                for (int i = column + 1; i < this.getColumns(); i++) {
+                    if (this.gems[i][row].getType() == type) {
+                        horizontalSequence.add(new Point(i, row));
+                    } else {
+                        break;
+                    }
+                }
+
+                if (horizontalSequence.size() < 3) {
+                    horizontalSequence.clear();
+                }
+
+                // create the union of the two sequences, then check to see if
+                // we have more than 3 selected 
+                for (Point point : horizontalSequence) {
+                    if (!verticalSequence.contains(point)){
+                        verticalSequence.add(point);
+                    }
+                }
+                
+                if (verticalSequence.size() < 3) {
+                    verticalSequence.clear();
                 } else {
-                    return gemSequence;
+                    return verticalSequence;
                 }
             }
         }
 
-        return gemSequence;
+        return verticalSequence;
     }
 
     
