@@ -7,6 +7,7 @@ package gemkana;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  *
@@ -66,7 +67,7 @@ public class GemField {
 
         return false;
     }
-
+    
     private Gem[][] gems;
 
     /**
@@ -82,6 +83,7 @@ public class GemField {
     public void setGems(Gem[][] gems) {
         this.gems = gems;
     }
+    
     private GemType[] types = null;
 
     /**
@@ -130,7 +132,6 @@ public class GemField {
     }
 
 //    </editor-fold>
-    
 //    <editor-fold defaultstate="collapsed" desc="Methods">
     /**
      * Initialize the GemField with a randomized set of new Gems; this method
@@ -162,7 +163,6 @@ public class GemField {
             this.gems[location_2.x][location_2.y] = gem1;
         }
     }
-
     private int base = 10;
     private int baseMultiplier = 1;
     private int bonusBoundary = 4;
@@ -211,7 +211,25 @@ public class GemField {
 
                 if (verticalSequence.size() < 3) {
                     verticalSequence.clear();
-                } 
+                }
+
+                /*
+                 * TODO - There is a logic flaw here: we can ONLY check for 
+                 * horizontal sequences IF (IFF) there is no vertical sequence
+                 * that meets the length criterion (sequence.length >= 3).
+                 * The reason for this is that when we have a vertical sequence,
+                 * it is more correct to check for a horizontal sequence off of 
+                 * ANY of the nodes in the vertical sequence, not just the node
+                 * that initiated the discovery of the sequence.  For example,
+                 * any of the following horizontal sequences should be seen as
+                 * part of a the embedded vertical sequence:
+                 * 
+                 *     h v h h       v             v 
+                 *       v         h v h           v
+                 *       v           v         h h v
+                 * 
+                 * LOW PRIORITY
+                 */
 
                 //Horizontal sequence count
                 horizontalSequence.add(new Point(column, row));
@@ -241,11 +259,11 @@ public class GemField {
                 // create the union of the two sequences, then check to see if
                 // we have more than 3 selected 
                 for (Point point : horizontalSequence) {
-                    if (!verticalSequence.contains(point)){
+                    if (!verticalSequence.contains(point)) {
                         verticalSequence.add(point);
                     }
                 }
-                
+
                 if (verticalSequence.size() < 3) {
                     verticalSequence.clear();
                 } else {
@@ -257,7 +275,56 @@ public class GemField {
         return verticalSequence;
     }
 
-    
+    public void removeSequence(ArrayList<Point> sequence) {
+        /* does it make sense to physically move the sequence points (perhaps 
+         * reusing them at the top of the grid), or merely to move the logical
+         * data (type).
+         * 
+         * Either way, must organize the points: assume that identifying 
+         * "removal points" from left to right, bottom to top will make the 
+         * logic coherent.
+         * 
+         * 
+         */
+
+        ArrayList<Point> columnSequence = new ArrayList<>();
+
+        for (int column = 0; column < this.getColumns(); column++) {
+            //get all the points in this column
+            for (Point point : sequence) {
+                if (point.x == column) {
+                    columnSequence.add(point);
+                }
+            }
+
+            if (columnSequence.size() > 0) {
+                //if we have any, put them in "row" order, from lowest to highest
+                int[] colSeq = new int[columnSequence.size()];
+                for (int i = 0; i < columnSequence.size(); i++) {
+                    colSeq[i] = columnSequence.get(i).y;
+                }
+                Arrays.sort(colSeq);
+                // TODO - may not need to sort, just need minimum value and 
+                // length - see logic below. Min-search might be less work than
+                // sort... but for the length of the average sequence 3 or 4, 
+                // this might not be worth the hassle.
+                
+                // retain the positions, but "move down" the type information by
+                // the number of sequence items in this row
+                for (int row = colSeq[0]-1; row >= 0; row++) {
+//                    this.gems[1][2].;
+                    this.gems[column][row + colSeq.length].setType( this.gems[column][row].getType() );                    
+                }
+                
+                //now, replace the gem types of the gems at the top of the column
+                for (int row = 0; row < colSeq.length; row++) {
+                    this.gems[column][row].randomizeGemType();
+                }
+            }
+        }
+
+    }
+
     public boolean sequenceContainsLocation(ArrayList<Point> sequence, Point location) {
         for (Point point : sequence) {
             if (point.equals(location)) {
@@ -272,7 +339,6 @@ public class GemField {
      * positions randomly.
      */
 //    </editor-fold>
-    
 //    <editor-fold defaultstate="collapsed" desc="Constructors">
     public GemField(Gem[][] gems) {
         this.gems = gems;
