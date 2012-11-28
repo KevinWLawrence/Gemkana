@@ -49,10 +49,19 @@ class GemkanaView extends Environment {
 
     @Override
     public void keyPressedHandler(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_R){
+        if (e.getKeyCode() == KeyEvent.VK_R) {
             this.gemField.randomize();
+        } else if (e.getKeyCode() == KeyEvent.VK_C) {
+//            scoreSequence();
+            collapseSequence();
         }
-        
+
+    }
+
+    private void collapseSequence() {
+        ArrayList<Point> gs = gemField.getGemSequence();
+        System.out.println("Sequence = " + gs.toString());
+        this.gemField.removeSequence(gs);
     }
 
     @Override

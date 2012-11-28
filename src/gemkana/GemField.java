@@ -311,7 +311,7 @@ public class GemField {
                 
                 // retain the positions, but "move down" the type information by
                 // the number of sequence items in this row
-                for (int row = colSeq[0]-1; row >= 0; row++) {
+                for (int row = colSeq[0]-1; row >= 0; row--) {
 //                    this.gems[1][2].;
                     this.gems[column][row + colSeq.length].setType( this.gems[column][row].getType() );                    
                 }
