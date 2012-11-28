@@ -70,18 +70,17 @@ class GemkanaView extends Environment {
 
     @Override
     public void environmentMouseClicked(MouseEvent e) {
-//        System.out.printf("Clicked (%d, %d)\n", e.getX(), e.getY());
+        /* 
+         * TODO - HIGH PRIORITY - do not allow a selection unless the two points
+         * are adjacent
+         */
         Point location = this.grid.cellPointCalculator(e.getX(), e.getY());
         if ((location.x <= gemField.getColumns()) && (location.y <= gemField.getRows())) {
-            gemField.updateSelected(location);
-
+            if (!gemField.updateSelected(location)){
+                java.awt.Toolkit.getDefaultToolkit().beep();
+            }
         }
 //        System.out.printf("Grid(%d, %d)\n", gridCoordinate.x, gridCoordinate.y);
-
-//        if (location.x < fieldPosition.x) {
-//            this.gemField.randomize();
-//        }
-
     }
 
     @Override

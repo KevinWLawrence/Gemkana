@@ -32,7 +32,7 @@ public class GemField {
         this.selectedList = selected;
     }
 
-    public void updateSelected(Point location) {
+    public boolean updateSelected(Point location) {
         //if location is already selected, then deselect
         //else add location to list of selected items
         //if ave two selected items, attempt to switch, check for lines, etc.
@@ -47,15 +47,34 @@ public class GemField {
         if (selected != null) {
             selectedList.remove(selected);
         } else {
+            //check to see if the new point is adjacent to the previously 
+            //selected point
+            if (selectedList.size() == 1) {
+                if (!adjacent(location, selectedList.get(0))) {
+                    return false;
+                }
+            }
             selectedList.add(location);
         }
 
+        /*
+         * refactor this out to another method
+         */
         if (selectedList.size() >= 2) {
             System.out.println("SWITCH ATTEMPT INITIATED");
             switchGemLocations(selectedList.get(0), selectedList.get(1));
             System.out.println("SWITCH ATTEMPT COMPLETE");
             selectedList.clear();
         }
+        return true;
+    }
+
+    public boolean adjacent(Point location_1, Point location_2) {
+        return (Math.abs(location_1.x - location_2.x) == 1)
+                && (Math.abs(location_1.y - location_2.y) == 0)
+                ||
+                ((Math.abs(location_1.x - location_2.x) == 0)
+                && (Math.abs(location_1.y - location_2.y) == 1));
     }
 
     public boolean isSelected(Point location) {
@@ -67,7 +86,6 @@ public class GemField {
 
         return false;
     }
-    
     private Gem[][] gems;
 
     /**
@@ -83,7 +101,6 @@ public class GemField {
     public void setGems(Gem[][] gems) {
         this.gems = gems;
     }
-    
     private GemType[] types = null;
 
     /**
@@ -181,6 +198,7 @@ public class GemField {
     }
 
     public ArrayList<Point> getGemSequence() {
+        int MIN_SEQUENCE_LENGTH = 3;
         ArrayList<Point> verticalSequence = new ArrayList<>();
         ArrayList<Point> horizontalSequence = new ArrayList<>();
         GemType type;
@@ -209,7 +227,7 @@ public class GemField {
                     }
                 }
 
-                if (verticalSequence.size() < 3) {
+                if (verticalSequence.size() < MIN_SEQUENCE_LENGTH) {
                     verticalSequence.clear();
                 }
 
@@ -252,7 +270,7 @@ public class GemField {
                     }
                 }
 
-                if (horizontalSequence.size() < 3) {
+                if (horizontalSequence.size() < MIN_SEQUENCE_LENGTH) {
                     horizontalSequence.clear();
                 }
 
@@ -264,14 +282,13 @@ public class GemField {
                     }
                 }
 
-                if (verticalSequence.size() < 3) {
+                if (verticalSequence.size() < MIN_SEQUENCE_LENGTH) {
                     verticalSequence.clear();
                 } else {
                     return verticalSequence;
                 }
             }
         }
-
         return verticalSequence;
     }
 
@@ -283,8 +300,6 @@ public class GemField {
          * Either way, must organize the points: assume that identifying 
          * "removal points" from left to right, bottom to top will make the 
          * logic coherent.
-         * 
-         * 
          */
 
         ArrayList<Point> columnSequence = new ArrayList<>();
@@ -308,19 +323,20 @@ public class GemField {
                 // length - see logic below. Min-search might be less work than
                 // sort... but for the length of the average sequence 3 or 4, 
                 // this might not be worth the hassle.
-                
+
                 // retain the positions, but "move down" the type information by
                 // the number of sequence items in this row
-                for (int row = colSeq[0]-1; row >= 0; row--) {
+                for (int row = colSeq[0] - 1; row >= 0; row--) {
 //                    this.gems[1][2].;
-                    this.gems[column][row + colSeq.length].setType( this.gems[column][row].getType() );                    
+                    this.gems[column][row + colSeq.length].setType(this.gems[column][row].getType());
                 }
-                
+
                 //now, replace the gem types of the gems at the top of the column
                 for (int row = 0; row < colSeq.length; row++) {
                     this.gems[column][row].randomizeGemType();
                 }
             }
+            columnSequence.clear();
         }
 
     }
