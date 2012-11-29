@@ -19,19 +19,30 @@ public class GemField {
     private ArrayList<Point> selectedList = new ArrayList<Point>();
 
     /**
-     * @return the selected
+     * @return the selected locations in the gem field
      */
     public ArrayList<Point> getSelected() {
         return selectedList;
     }
 
     /**
-     * @param selected the selected to set
+     * @param selected the selected to set the selected locations
      */
     public void setSelected(ArrayList<Point> selected) {
         this.selectedList = selected;
     }
 
+    /**
+     * @return Whether the attempt to add a location to the selected list
+     * succeeded. Note that attempting an update with a location that is already
+     * in the list will cause that location to be removed from the list: this is
+     * intended to act as a "selection toggle". Also, if there is a location in
+     * the selected list, a subsequent location must be adjacent (at right
+     * angles above, below, or beside) to the first location; if this condition
+     * is not met, the location will not be added and "false" will be returned.
+     *
+     * @param The location (Point) to be added to the list of selected locations
+     */
     public boolean updateSelected(Point location) {
         //if location is already selected, then deselect
         //else add location to list of selected items
@@ -56,36 +67,58 @@ public class GemField {
             }
             selectedList.add(location);
         }
+        return true;
+    }
 
-        /*
-         * refactor this out to another method
-         */
-        if (selectedList.size() >= 2) {
-            System.out.println("SWITCH ATTEMPT INITIATED");
+    /**
+     * @return Whether the attempt to switch locations succeeded. Note that this
+     * will fail if:
+     *   - there are less than two locations in the "Selected List";
+     *   - the attempted move does not result in a sequence that can be cleared.  
+     * 
+     * If the method fails, the switch will be rolled back to return the gem 
+     * field to its original state.
+     */
+    public boolean tryGemLocationSwitch() {
+        if (selectedList.size() < 2) {
+            return false;
+        } else {
             switchGemLocations(selectedList.get(0), selectedList.get(1));
-            System.out.println("SWITCH ATTEMPT COMPLETE");
+//          TODO - validate move logic, rollback and return false if no clearance;
+//            validateMove();
             selectedList.clear();
         }
         return true;
     }
 
+    /**
+     * @return returns true if the locations provided are horizontally or 
+     * vertically adjacent, and false otherwise.
+     * 
+     * @param location_1 the  location to be tested as adjacent to location_2
+     * @param location_2 the  location to be tested as adjacent to location_1
+     */
     public boolean adjacent(Point location_1, Point location_2) {
         return (Math.abs(location_1.x - location_2.x) == 1)
                 && (Math.abs(location_1.y - location_2.y) == 0)
-                ||
-                ((Math.abs(location_1.x - location_2.x) == 0)
+                || ((Math.abs(location_1.x - location_2.x) == 0)
                 && (Math.abs(location_1.y - location_2.y) == 1));
     }
 
+    /**
+     * 
+     * @param location 
+     * @return true if the location is currently in the list of selected locations
+     */
     public boolean isSelected(Point location) {
         for (Point point : selectedList) {
             if (point.equals(location)) {
                 return true;
             }
         }
-
         return false;
     }
+    
     private Gem[][] gems;
 
     /**
