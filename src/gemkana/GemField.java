@@ -134,6 +134,7 @@ public class GemField {
     public void setGems(Gem[][] gems) {
         this.gems = gems;
     }
+    
     private GemType[] types = null;
 
     /**
@@ -182,6 +183,7 @@ public class GemField {
     }
 
 //    </editor-fold>
+    
 //    <editor-fold defaultstate="collapsed" desc="Methods">
     /**
      * Initialize the GemField with a randomized set of new Gems; this method
@@ -388,6 +390,7 @@ public class GemField {
      * positions randomly.
      */
 //    </editor-fold>
+    
 //    <editor-fold defaultstate="collapsed" desc="Constructors">
     public GemField(Gem[][] gems) {
         this.gems = gems;
