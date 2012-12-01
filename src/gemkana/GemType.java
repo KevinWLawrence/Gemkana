@@ -13,7 +13,6 @@ import java.awt.Color;
 public enum GemType {
 
     Emerald, Pearl, Diamond, Ruby, Sapphire, Amethyst, Citrine, Garnet, Magic;
-    // Green,   White, Clear,   Red,  Blue,     Purple,   Yellow,  Orange
 
 //    <editor-fold defaultstate="collapsed" desc="Methods">
     /**
