@@ -26,6 +26,7 @@ class GemkanaView extends Environment {
     private Point fieldPosition;
     private GemField gemField;
     private Grid grid;
+    private GemTypeImage gemTypeImages;
 
     public GemkanaView(Image background) {
         super(background);
@@ -41,6 +42,8 @@ class GemkanaView extends Environment {
 
         this.gemField = new GemField(8, 8);
         this.grid = new Grid(gemField.getSize().width, gemField.getSize().height, cellSize.width, cellSize.height, fieldPosition, Color.WHITE);
+    
+        this.gemTypeImages = new GemTypeImage();
     }
 
     @Override
@@ -76,7 +79,7 @@ class GemkanaView extends Environment {
          */
         Point location = this.grid.cellPointCalculator(e.getX(), e.getY());
         if ((location.x <= gemField.getColumns()) && (location.y <= gemField.getRows())) {
-            if (!gemField.updateSelected(location)){
+            if (!gemField.updateSelected(location)) {
                 java.awt.Toolkit.getDefaultToolkit().beep();
             }
         }
@@ -90,18 +93,17 @@ class GemkanaView extends Environment {
 
         for (int row = 0; row < this.gemField.getRows(); row++) {
             for (int column = 0; column < this.gemField.getColumns(); column++) {
-                if (gemField.isSelected(new Point(column, row))) {
-                    graphics.setColor(Color.WHITE);
-                    graphics.fillOval(fieldPosition.x + (column * cellSize.width),
-                            fieldPosition.y + (row * cellSize.height),
-                            cellSize.width, cellSize.height);
+               
+//                drawBaseGem(graphics, this.gemField.getGems()[column][row], 
+//                            new Point(fieldPosition.x + (column * cellSize.width), fieldPosition.y + (row * cellSize.height)), 
+//                            this.cellSize, this.gemSize, 
+//                            gemField.isSelected(new Point(column, row)));
 
-                }
+                drawAdvancedGem(graphics, this.gemField.getGems()[column][row], 
+                            new Point(fieldPosition.x + (column * cellSize.width), fieldPosition.y + (row * cellSize.height)), 
+                            this.cellSize, this.gemSize, 
+                            gemField.isSelected(new Point(column, row)));
 
-                graphics.setColor(GemType.getColor(this.gemField.getGems()[column][row].getType()));
-                graphics.fillOval(fieldPosition.x + ((cellSize.width - gemSize.width) / 2) + (column * cellSize.width),
-                        fieldPosition.y + ((cellSize.height - gemSize.height) / 2) + (row * cellSize.height),
-                        gemSize.width, gemSize.height);
 
                 //indicate that you have a member of a gemSequence
                 if (graphics.getColor() == Color.BLACK) {
@@ -121,5 +123,29 @@ class GemkanaView extends Environment {
         if (this.grid != null) {
             this.grid.paintComponent(graphics);
         }
+    }
+
+    public void drawBaseGem(Graphics graphics, Gem gem, Point position, Dimension cellSize, Dimension gemSize, boolean isSelected) {
+        if (isSelected) {
+            graphics.setColor(Color.WHITE);
+            graphics.fillOval(position.x, position.y, cellSize.width, cellSize.height);
+        }
+
+        graphics.setColor(GemType.getColor(gem.getType()));
+        graphics.fillOval(position.x + ((cellSize.width - gemSize.width) / 2),
+                          position.y + ((cellSize.height - gemSize.height) / 2),
+                          gemSize.width, gemSize.height);
+
+    }
+
+    public void drawAdvancedGem(Graphics graphics, Gem gem, Point position, Dimension cellSize, Dimension gemSize, boolean isSelected) {
+        if (isSelected) {
+            graphics.setColor(Color.WHITE);
+            graphics.fillOval(position.x, position.y, cellSize.width, cellSize.height);
+        }
+
+        graphics.drawImage(this.gemTypeImages.getImage(gem.getType()), 
+                           position.x + ((cellSize.width - gemSize.width) / 2),
+                           position.y + ((cellSize.height - gemSize.height) / 2), this);
     }
 }

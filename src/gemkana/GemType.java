@@ -32,7 +32,7 @@ public enum GemType {
     }
     
     /**
-     * @return Given a default Color associated with a the supplied GemType.
+     * @return a default Color associated with a the supplied GemType.
      */
     public static Color getColor(GemType gemType) {
         switch (gemType){
