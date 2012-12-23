@@ -21,6 +21,7 @@ public class Gemkana {
     }
 
     private static void startApplication() {
-        ApplicationStarter.Run(new String[0], "GemKana!", new Dimension(600, 600), new GemkanaView(null));
+        ApplicationStarter.Run(new String[0], "GemKana!", new Dimension(700, 570), 
+                new GemkanaView(image.ResourceTools.loadImageFromResource("resources/MilkyNebula.jpg")));
     }
 }

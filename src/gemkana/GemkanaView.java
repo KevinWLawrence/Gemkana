@@ -38,7 +38,7 @@ class GemkanaView extends Environment {
     public void initializeEnvironment() {
         cellSize = new Dimension(60, 60);
         gemSize = new Dimension(50, 50);
-        fieldPosition = new Point(120, 20);
+        fieldPosition = new Point(190, 20);
 
         this.gemField = new GemField(8, 8);
         this.grid = new Grid(gemField.getSize().width, gemField.getSize().height, cellSize.width, cellSize.height, fieldPosition, Color.WHITE);
