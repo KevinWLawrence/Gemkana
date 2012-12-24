@@ -26,12 +26,12 @@ class GemkanaView extends Environment {
     private Point fieldPosition;
     private GemField gemField;
     private Grid grid;
-    private GemTypeImage gemTypeImages;
+    private GemTypeView gemTypeView;
+    private boolean advanced;
+    private boolean debug;
 
     public GemkanaView(Image background) {
         super(background);
-//        this.setSize(this.fieldPosition.x + (this.gf.getColumns() * this.cellSize.width) + 1000, 
-//                     this.fieldPosition.y + (this.gf.getRows() * this.cellSize.height) + 10);
     }
 
     @Override
@@ -40,10 +40,10 @@ class GemkanaView extends Environment {
         gemSize = new Dimension(50, 50);
         fieldPosition = new Point(190, 20);
 
-        this.gemField = new GemField(8, 8);
-        this.grid = new Grid(gemField.getSize().width, gemField.getSize().height, cellSize.width, cellSize.height, fieldPosition, Color.WHITE);
-    
-        this.gemTypeImages = new GemTypeImage();
+        gemField = new GemField(8, 8);
+        grid = new Grid(gemField.getSize().width, gemField.getSize().height, cellSize.width, cellSize.height, fieldPosition, Color.WHITE);
+
+        gemTypeView = new GemTypeView();
     }
 
     @Override
@@ -57,8 +57,11 @@ class GemkanaView extends Environment {
         } else if (e.getKeyCode() == KeyEvent.VK_C) {
 //            scoreSequence();
             collapseSequence();
+        } else if (e.getKeyCode() == KeyEvent.VK_A) {
+            advanced = !advanced;
+        } else if (e.getKeyCode() == KeyEvent.VK_D) {
+            debug = !debug;
         }
-
     }
 
     private void collapseSequence() {
@@ -73,13 +76,19 @@ class GemkanaView extends Environment {
 
     @Override
     public void environmentMouseClicked(MouseEvent e) {
-        /* 
-         * TODO - HIGH PRIORITY - do not allow a selection unless the two points
-         * are adjacent
-         */
         Point location = this.grid.cellPointCalculator(e.getX(), e.getY());
+
         if ((location.x <= gemField.getColumns()) && (location.y <= gemField.getRows())) {
-            if (!gemField.updateSelected(location)) {
+            if (gemField.updateSelected(location)) {
+                if (gemField.getSelectedCount() == 2) {
+                    if (gemField.tryGemLocationSwitch()) {
+                        gemField.clearSelected();
+                    } else {
+                        //back out the switch
+                        java.awt.Toolkit.getDefaultToolkit().beep();
+                    }
+                }                
+            } else {
                 java.awt.Toolkit.getDefaultToolkit().beep();
             }
         }
@@ -88,38 +97,27 @@ class GemkanaView extends Environment {
 
     @Override
     public void paintEnvironment(Graphics graphics) {
-
-        ArrayList<Point> gs = gemField.getGemSequence();
-
         for (int row = 0; row < this.gemField.getRows(); row++) {
             for (int column = 0; column < this.gemField.getColumns(); column++) {
-               
-//                drawBaseGem(graphics, this.gemField.getGems()[column][row], 
-//                            new Point(fieldPosition.x + (column * cellSize.width), fieldPosition.y + (row * cellSize.height)), 
-//                            this.cellSize, this.gemSize, 
-//                            gemField.isSelected(new Point(column, row)));
 
-                drawAdvancedGem(graphics, this.gemField.getGems()[column][row], 
-                            new Point(fieldPosition.x + (column * cellSize.width), fieldPosition.y + (row * cellSize.height)), 
-                            this.cellSize, this.gemSize, 
+                if (advanced) {
+                    drawAdvancedGem(graphics, this.gemField.getGems()[column][row],
+                            new Point(fieldPosition.x + (column * cellSize.width), fieldPosition.y + (row * cellSize.height)),
+                            this.cellSize, this.gemSize,
                             gemField.isSelected(new Point(column, row)));
-
-
-                //indicate that you have a member of a gemSequence
-                if (graphics.getColor() == Color.BLACK) {
-                    graphics.setColor(Color.YELLOW);
                 } else {
-                    graphics.setColor(Color.BLACK);
-                }
-
-                if (gs.contains(new Point(column, row))) {
-                    graphics.fillRect(fieldPosition.x + (column * cellSize.width) + (cellSize.width / 2),
-                            fieldPosition.y + (row * cellSize.height) + (cellSize.height / 2),
-                            4, 4);
-
+                    drawBaseGem(graphics, this.gemField.getGems()[column][row],
+                            new Point(fieldPosition.x + (column * cellSize.width), fieldPosition.y + (row * cellSize.height)),
+                            this.cellSize, this.gemSize,
+                            gemField.isSelected(new Point(column, row)));
                 }
             }
         }
+        
+        if (debug) {
+            markGemSequences(graphics);
+        }
+
         if (this.grid != null) {
             this.grid.paintComponent(graphics);
         }
@@ -131,10 +129,10 @@ class GemkanaView extends Environment {
             graphics.fillOval(position.x, position.y, cellSize.width, cellSize.height);
         }
 
-        graphics.setColor(GemType.getColor(gem.getType()));
+        graphics.setColor(gemTypeView.getColor(gem.getType()));
         graphics.fillOval(position.x + ((cellSize.width - gemSize.width) / 2),
-                          position.y + ((cellSize.height - gemSize.height) / 2),
-                          gemSize.width, gemSize.height);
+                position.y + ((cellSize.height - gemSize.height) / 2),
+                gemSize.width, gemSize.height);
 
     }
 
@@ -144,8 +142,31 @@ class GemkanaView extends Environment {
             graphics.fillOval(position.x, position.y, cellSize.width, cellSize.height);
         }
 
-        graphics.drawImage(this.gemTypeImages.getImage(gem.getType()), 
-                           position.x + ((cellSize.width - gemSize.width) / 2),
-                           position.y + ((cellSize.height - gemSize.height) / 2), this);
+        graphics.drawImage(gemTypeView.getImage(gem.getType()),
+                position.x + ((cellSize.width - gemSize.width) / 2),
+                position.y + ((cellSize.height - gemSize.height) / 2), this);
+    }
+
+    public void markGemSequences(Graphics graphics) {
+        ArrayList<Point> gs = gemField.getGemSequence();
+        Point location = new Point();
+
+        //indicate that you have a member of a gemSequence
+        if (graphics.getColor() == Color.BLACK) {
+            graphics.setColor(Color.YELLOW);
+        } else {
+            graphics.setColor(Color.BLACK);
+        }
+
+        for (int row = 0; row < this.gemField.getRows(); row++) {
+            for (int column = 0; column < this.gemField.getColumns(); column++) {
+                location.move(column, row);
+                if (gs.contains(location)) {
+                    graphics.fillRect(fieldPosition.x + (column * cellSize.width) + (cellSize.width / 2),
+                            fieldPosition.y + (row * cellSize.height) + (cellSize.height / 2),
+                            4, 4);
+                }
+            }
+        }
     }
 }

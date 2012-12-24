@@ -33,6 +33,20 @@ public class GemField {
     }
 
     /**
+     * @return the number of selected locations
+     */
+    public int getSelectedCount() {
+        return selectedList.size();
+    }
+
+    /**
+     * clear the selected locations
+     */
+    public void clearSelected() {
+        selectedList.clear();
+    }
+
+    /**
      * @return Whether the attempt to add a location to the selected list
      * succeeded. Note that attempting an update with a location that is already
      * in the list will cause that location to be removed from the list: this is
@@ -72,11 +86,10 @@ public class GemField {
 
     /**
      * @return Whether the attempt to switch locations succeeded. Note that this
-     * will fail if:
-     *   - there are less than two locations in the "Selected List";
-     *   - the attempted move does not result in a sequence that can be cleared.  
-     * 
-     * If the method fails, the switch will be rolled back to return the gem 
+     * will fail if: - there are less than two locations in the "Selected List";
+     * - the attempted move does not result in a sequence that can be cleared.
+     *
+     * If the method fails, the switch will be rolled back to return the gem
      * field to its original state.
      */
     public boolean tryGemLocationSwitch() {
@@ -92,11 +105,11 @@ public class GemField {
     }
 
     /**
-     * @return returns true if the locations provided are horizontally or 
+     * @return returns true if the locations provided are horizontally or
      * vertically adjacent, and false otherwise.
-     * 
-     * @param location_1 the  location to be tested as adjacent to location_2
-     * @param location_2 the  location to be tested as adjacent to location_1
+     *
+     * @param location_1 the location to be tested as adjacent to location_2
+     * @param location_2 the location to be tested as adjacent to location_1
      */
     public boolean adjacent(Point location_1, Point location_2) {
         return (Math.abs(location_1.x - location_2.x) == 1)
@@ -106,9 +119,10 @@ public class GemField {
     }
 
     /**
-     * 
-     * @param location 
-     * @return true if the location is currently in the list of selected locations
+     *
+     * @param location
+     * @return true if the location is currently in the list of selected
+     * locations
      */
     public boolean isSelected(Point location) {
         for (Point point : selectedList) {
@@ -118,7 +132,6 @@ public class GemField {
         }
         return false;
     }
-    
     private Gem[][] gems;
 
     /**
@@ -232,99 +245,120 @@ public class GemField {
         return baseScore + bonusScore;
     }
 
-    public ArrayList<Point> getGemSequence() {
-        int MIN_SEQUENCE_LENGTH = 3;
+    public ArrayList<Point> getGemSequence(Point location) {
+        int column = location.x;
+        int row = location.y;
+
+        //TODO: There is some confusion in passing around Point objects, because
+        //of the continual translation of (x, y) into (column, row); should 
+        //refactor all Point uses into new Location (or CellLocation?) object
+        
         ArrayList<Point> verticalSequence = new ArrayList<>();
         ArrayList<Point> horizontalSequence = new ArrayList<>();
-        GemType type;
 
+        GemType type = this.gems[column][row].getType();
+
+        verticalSequence.add(location);
+
+        //check the gems above the current position
+        for (int i = row - 1; i >= 0; i--) {
+            if (this.gems[column][i].getType() == type) {
+                verticalSequence.add(new Point(column, i));
+            } else {
+                break;
+            }
+        }
+
+        //check the gems below the current position
+        for (int i = row + 1; i < this.getRows(); i++) {
+            if (this.gems[column][i].getType() == type) {
+                verticalSequence.add(new Point(column, i));
+            } else {
+                break;
+            }
+        }
+
+        if (verticalSequence.size() < MIN_SEQUENCE_LENGTH) {
+            verticalSequence.clear();
+        }
+
+        /*
+         * TODO - There is a logic flaw here: we can ONLY check for 
+         * horizontal sequences IF (IFF) there is no vertical sequence
+         * that meets the length criterion (sequence.length >= 3).
+         * The reason for this is that when we have a vertical sequence,
+         * it is more correct to check for a horizontal sequence off of 
+         * ANY of the nodes in the vertical sequence, not just the node
+         * that initiated the discovery of the sequence.  For example,
+         * any of the following horizontal sequences should be seen as
+         * part of a the embedded vertical sequence:
+         * 
+         *     h v h h       v             v 
+         *       v         h v h           v
+         *       v           v         h h v
+         * 
+         * LOW PRIORITY
+         */
+
+        //Horizontal sequence count
+        horizontalSequence.add(new Point(column, row));
+
+        //check the gems to the left of the current position
+        for (int i = column - 1; i >= 0; i--) {
+            if (this.gems[i][row].getType() == type) {
+                horizontalSequence.add(new Point(i, row));
+            } else {
+                break;
+            }
+        }
+
+        //check the gems to the right of the current position
+        for (int i = column + 1; i < this.getColumns(); i++) {
+            if (this.gems[i][row].getType() == type) {
+                horizontalSequence.add(new Point(i, row));
+            } else {
+                break;
+            }
+        }
+
+        if (horizontalSequence.size() < MIN_SEQUENCE_LENGTH) {
+            horizontalSequence.clear();
+        }
+
+        // create the union of the two sequences, then check to see if
+        // we have more than 3 selected 
+        for (Point point : horizontalSequence) {
+            if (!verticalSequence.contains(point)) {
+                verticalSequence.add(point);
+            }
+        }
+
+        if (verticalSequence.size() < MIN_SEQUENCE_LENGTH) {
+            verticalSequence.clear();
+        } 
+        
+        return verticalSequence;
+    }
+
+    private int MIN_SEQUENCE_LENGTH = 3;
+ 
+    public ArrayList<Point> getGemSequence() {
+        ArrayList<Point> sequence = new ArrayList<>();
+        Point location = new Point();
+        
         for (int column = 0; column < this.getColumns(); column++) {
             for (int row = 0; row < this.getRows(); row++) {
-                //Vertical sequence count
-                type = this.gems[column][row].getType();
-                verticalSequence.add(new Point(column, row));
+                location.move(column, row);
+                sequence = getGemSequence(location);
 
-                //check the gems above the current position
-                for (int i = row - 1; i >= 0; i--) {
-                    if (this.gems[column][i].getType() == type) {
-                        verticalSequence.add(new Point(column, i));
-                    } else {
-                        break;
-                    }
-                }
-
-                //check the gems below the current position
-                for (int i = row + 1; i < this.getRows(); i++) {
-                    if (this.gems[column][i].getType() == type) {
-                        verticalSequence.add(new Point(column, i));
-                    } else {
-                        break;
-                    }
-                }
-
-                if (verticalSequence.size() < MIN_SEQUENCE_LENGTH) {
-                    verticalSequence.clear();
-                }
-
-                /*
-                 * TODO - There is a logic flaw here: we can ONLY check for 
-                 * horizontal sequences IF (IFF) there is no vertical sequence
-                 * that meets the length criterion (sequence.length >= 3).
-                 * The reason for this is that when we have a vertical sequence,
-                 * it is more correct to check for a horizontal sequence off of 
-                 * ANY of the nodes in the vertical sequence, not just the node
-                 * that initiated the discovery of the sequence.  For example,
-                 * any of the following horizontal sequences should be seen as
-                 * part of a the embedded vertical sequence:
-                 * 
-                 *     h v h h       v             v 
-                 *       v         h v h           v
-                 *       v           v         h h v
-                 * 
-                 * LOW PRIORITY
-                 */
-
-                //Horizontal sequence count
-                horizontalSequence.add(new Point(column, row));
-
-                //check the gems to the left of the current position
-                for (int i = column - 1; i >= 0; i--) {
-                    if (this.gems[i][row].getType() == type) {
-                        horizontalSequence.add(new Point(i, row));
-                    } else {
-                        break;
-                    }
-                }
-
-                //check the gems to the right of the current position
-                for (int i = column + 1; i < this.getColumns(); i++) {
-                    if (this.gems[i][row].getType() == type) {
-                        horizontalSequence.add(new Point(i, row));
-                    } else {
-                        break;
-                    }
-                }
-
-                if (horizontalSequence.size() < MIN_SEQUENCE_LENGTH) {
-                    horizontalSequence.clear();
-                }
-
-                // create the union of the two sequences, then check to see if
-                // we have more than 3 selected 
-                for (Point point : horizontalSequence) {
-                    if (!verticalSequence.contains(point)) {
-                        verticalSequence.add(point);
-                    }
-                }
-
-                if (verticalSequence.size() < MIN_SEQUENCE_LENGTH) {
-                    verticalSequence.clear();
+                if (sequence.size() < MIN_SEQUENCE_LENGTH) {
+                    sequence.clear();
                 } else {
-                    return verticalSequence;
+                    return sequence;
                 }
             }
         }
-        return verticalSequence;
+        return sequence;
     }
 
     public void removeSequence(ArrayList<Point> sequence) {
