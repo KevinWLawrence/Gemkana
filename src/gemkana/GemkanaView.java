@@ -65,7 +65,7 @@ class GemkanaView extends Environment {
     }
 
     private void collapseSequence() {
-        ArrayList<Point> gs = gemField.getGemSequence();
+        ArrayList<Location> gs = gemField.getGemSequence();
         System.out.println("Sequence = " + gs.toString());
         this.gemField.removeSequence(gs);
     }
@@ -76,9 +76,10 @@ class GemkanaView extends Environment {
 
     @Override
     public void environmentMouseClicked(MouseEvent e) {
-        Point location = this.grid.cellPointCalculator(e.getX(), e.getY());
+        Point point = this.grid.cellPointCalculator(e.getX(), e.getY());
+        Location location = new Location(point.x, point.y);
 
-        if ((location.x <= gemField.getColumns()) && (location.y <= gemField.getRows())) {
+        if ((location.getColumn() <= gemField.getColumns()) && (location.getRow() <= gemField.getRows())) {
             if (gemField.updateSelected(location)) {
                 if (gemField.getSelectedCount() == 2) {
                     if (gemField.tryGemLocationSwitch()) {
@@ -87,7 +88,7 @@ class GemkanaView extends Environment {
                         //back out the switch
                         java.awt.Toolkit.getDefaultToolkit().beep();
                     }
-                }                
+                }
             } else {
                 java.awt.Toolkit.getDefaultToolkit().beep();
             }
@@ -104,16 +105,16 @@ class GemkanaView extends Environment {
                     drawAdvancedGem(graphics, this.gemField.getGems()[column][row],
                             new Point(fieldPosition.x + (column * cellSize.width), fieldPosition.y + (row * cellSize.height)),
                             this.cellSize, this.gemSize,
-                            gemField.isSelected(new Point(column, row)));
+                            gemField.isSelected(new Location(column, row)));
                 } else {
                     drawBaseGem(graphics, this.gemField.getGems()[column][row],
                             new Point(fieldPosition.x + (column * cellSize.width), fieldPosition.y + (row * cellSize.height)),
                             this.cellSize, this.gemSize,
-                            gemField.isSelected(new Point(column, row)));
+                            gemField.isSelected(new Location(column, row)));
                 }
             }
         }
-        
+
         if (debug) {
             markGemSequences(graphics);
         }
@@ -148,8 +149,9 @@ class GemkanaView extends Environment {
     }
 
     public void markGemSequences(Graphics graphics) {
-        ArrayList<Point> gs = gemField.getGemSequence();
-        Point location = new Point();
+        ArrayList<Location> gs = gemField.getGemSequence();
+        Location location = new Location();
+        System.out.println("debug");
 
         //indicate that you have a member of a gemSequence
         if (graphics.getColor() == Color.BLACK) {

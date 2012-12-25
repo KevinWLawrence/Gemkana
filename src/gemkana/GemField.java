@@ -5,7 +5,6 @@
 package gemkana;
 
 import java.awt.Dimension;
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -16,19 +15,19 @@ import java.util.Arrays;
 public class GemField {
 
 //    <editor-fold defaultstate="collapsed" desc="Properties">
-    private ArrayList<Point> selectedList = new ArrayList<Point>();
+    private ArrayList<Location> selectedList = new ArrayList<Location>();
 
     /**
      * @return the selected locations in the gem field
      */
-    public ArrayList<Point> getSelected() {
+    public ArrayList<Location> getSelected() {
         return selectedList;
     }
 
     /**
      * @param selected the selected to set the selected locations
      */
-    public void setSelected(ArrayList<Point> selected) {
+    public void setSelected(ArrayList<Location> selected) {
         this.selectedList = selected;
     }
 
@@ -55,17 +54,17 @@ public class GemField {
      * angles above, below, or beside) to the first location; if this condition
      * is not met, the location will not be added and "false" will be returned.
      *
-     * @param The location (Point) to be added to the list of selected locations
+     * @param The location (Location) to be added to the list of selected locations
      */
-    public boolean updateSelected(Point location) {
+    public boolean updateSelected(Location location) {
+        
         //if location is already selected, then deselect
         //else add location to list of selected items
-        //if ave two selected items, attempt to switch, check for lines, etc.
-
-        Point selected = null;
-        for (Point point : selectedList) {
-            if (point.equals(location)) {
-                selected = point;
+        //if have two selected items, attempt to switch, check for lines, etc.
+        Location selected = null;
+        for (Location locn : selectedList) {
+            if (locn.equals(location)) {
+                selected = locn;
             }
         }
 
@@ -75,7 +74,7 @@ public class GemField {
             //check to see if the new point is adjacent to the previously 
             //selected point
             if (selectedList.size() == 1) {
-                if (!adjacent(location, selectedList.get(0))) {
+                if (!(location.isAdjacent(selectedList.get(0)))) {
                     return false;
                 }
             }
@@ -104,28 +103,28 @@ public class GemField {
         return true;
     }
 
-    /**
-     * @return returns true if the locations provided are horizontally or
-     * vertically adjacent, and false otherwise.
-     *
-     * @param location_1 the location to be tested as adjacent to location_2
-     * @param location_2 the location to be tested as adjacent to location_1
-     */
-    public boolean adjacent(Point location_1, Point location_2) {
-        return (Math.abs(location_1.x - location_2.x) == 1)
-                && (Math.abs(location_1.y - location_2.y) == 0)
-                || ((Math.abs(location_1.x - location_2.x) == 0)
-                && (Math.abs(location_1.y - location_2.y) == 1));
-    }
-
+//    /**
+//     * @return returns true if the locations provided are horizontally or
+//     * vertically adjacent, and false otherwise.
+//     *
+//     * @param location_1 the location to be tested as adjacent to location_2
+//     * @param location_2 the location to be tested as adjacent to location_1
+//     */
+//    public boolean adjacent(Location location_1, Location location_2) {
+//        return (Math.abs(location_1.getColumn() - location_2.getColumn()) == 1)
+//                && (Math.abs(location_1.getRow() - location_2.getRow()) == 0)
+//                || ((Math.abs(location_1.getColumn() - location_2.getColumn()) == 0)
+//                && (Math.abs(location_1.getRow() - location_2.getRow()) == 1));
+//    }
+//
     /**
      *
      * @param location
      * @return true if the location is currently in the list of selected
      * locations
      */
-    public boolean isSelected(Point location) {
-        for (Point point : selectedList) {
+    public boolean isSelected(Location location) {
+        for (Location point : selectedList) {
             if (point.equals(location)) {
                 return true;
             }
@@ -218,14 +217,14 @@ public class GemField {
         }
     }
 
-    public void switchGemLocations(Point location_1, Point location_2) {
+    public void switchGemLocations(Location location_1, Location location_2) {
         if ((location_1 != null) && (location_2 != null)) {
 
-            Gem gem1 = this.gems[location_1.x][location_1.y];
-            Gem gem2 = this.gems[location_2.x][location_2.y];
+            Gem gem1 = this.gems[location_1.getColumn()][location_1.getRow()];
+            Gem gem2 = this.gems[location_2.getColumn()][location_2.getRow()];
 
-            this.gems[location_1.x][location_1.y] = gem2;
-            this.gems[location_2.x][location_2.y] = gem1;
+            this.gems[location_1.getColumn()][location_1.getRow()] = gem2;
+            this.gems[location_2.getColumn()][location_2.getRow()] = gem1;
         }
     }
     private int base = 10;
@@ -245,16 +244,16 @@ public class GemField {
         return baseScore + bonusScore;
     }
 
-    public ArrayList<Point> getGemSequence(Point location) {
-        int column = location.x;
-        int row = location.y;
+    public ArrayList<Location> getGemSequence(Location location) {
+        int column = location.getColumn();
+        int row = location.getRow();
 
-        //TODO: There is some confusion in passing around Point objects, because
+        //TODO: There is some confusion in passing around Location objects, because
         //of the continual translation of (x, y) into (column, row); should 
-        //refactor all Point uses into new Location (or CellLocation?) object
+        //refactor all Location uses into new Location (or CellLocation?) object
         
-        ArrayList<Point> verticalSequence = new ArrayList<>();
-        ArrayList<Point> horizontalSequence = new ArrayList<>();
+        ArrayList<Location> verticalSequence = new ArrayList<>();
+        ArrayList<Location> horizontalSequence = new ArrayList<>();
 
         GemType type = this.gems[column][row].getType();
 
@@ -263,7 +262,7 @@ public class GemField {
         //check the gems above the current position
         for (int i = row - 1; i >= 0; i--) {
             if (this.gems[column][i].getType() == type) {
-                verticalSequence.add(new Point(column, i));
+                verticalSequence.add(new Location(column, i));
             } else {
                 break;
             }
@@ -272,7 +271,7 @@ public class GemField {
         //check the gems below the current position
         for (int i = row + 1; i < this.getRows(); i++) {
             if (this.gems[column][i].getType() == type) {
-                verticalSequence.add(new Point(column, i));
+                verticalSequence.add(new Location(column, i));
             } else {
                 break;
             }
@@ -301,12 +300,12 @@ public class GemField {
          */
 
         //Horizontal sequence count
-        horizontalSequence.add(new Point(column, row));
+        horizontalSequence.add(new Location(column, row));
 
         //check the gems to the left of the current position
         for (int i = column - 1; i >= 0; i--) {
             if (this.gems[i][row].getType() == type) {
-                horizontalSequence.add(new Point(i, row));
+                horizontalSequence.add(new Location(i, row));
             } else {
                 break;
             }
@@ -315,7 +314,7 @@ public class GemField {
         //check the gems to the right of the current position
         for (int i = column + 1; i < this.getColumns(); i++) {
             if (this.gems[i][row].getType() == type) {
-                horizontalSequence.add(new Point(i, row));
+                horizontalSequence.add(new Location(i, row));
             } else {
                 break;
             }
@@ -327,7 +326,7 @@ public class GemField {
 
         // create the union of the two sequences, then check to see if
         // we have more than 3 selected 
-        for (Point point : horizontalSequence) {
+        for (Location point : horizontalSequence) {
             if (!verticalSequence.contains(point)) {
                 verticalSequence.add(point);
             }
@@ -342,9 +341,9 @@ public class GemField {
 
     private int MIN_SEQUENCE_LENGTH = 3;
  
-    public ArrayList<Point> getGemSequence() {
-        ArrayList<Point> sequence = new ArrayList<>();
-        Point location = new Point();
+    public ArrayList<Location> getGemSequence() {
+        ArrayList<Location> sequence = new ArrayList<>();
+        Location location = new Location();
         
         for (int column = 0; column < this.getColumns(); column++) {
             for (int row = 0; row < this.getRows(); row++) {
@@ -361,7 +360,7 @@ public class GemField {
         return sequence;
     }
 
-    public void removeSequence(ArrayList<Point> sequence) {
+    public void removeSequence(ArrayList<Location> sequence) {
         /* does it make sense to physically move the sequence points (perhaps 
          * reusing them at the top of the grid), or merely to move the logical
          * data (type).
@@ -371,13 +370,13 @@ public class GemField {
          * logic coherent.
          */
 
-        ArrayList<Point> columnSequence = new ArrayList<>();
+        ArrayList<Location> columnSequence = new ArrayList<>();
 
         for (int column = 0; column < this.getColumns(); column++) {
             //get all the points in this column
-            for (Point point : sequence) {
-                if (point.x == column) {
-                    columnSequence.add(point);
+            for (Location location : sequence) {
+                if (location.getColumn() == column) {
+                    columnSequence.add(location);
                 }
             }
 
@@ -385,7 +384,7 @@ public class GemField {
                 //if we have any, put them in "row" order, from lowest to highest
                 int[] colSeq = new int[columnSequence.size()];
                 for (int i = 0; i < columnSequence.size(); i++) {
-                    colSeq[i] = columnSequence.get(i).y;
+                    colSeq[i] = columnSequence.get(i).getRow();
                 }
                 Arrays.sort(colSeq);
                 // TODO - may not need to sort, just need minimum value and 
@@ -410,9 +409,9 @@ public class GemField {
 
     }
 
-    public boolean sequenceContainsLocation(ArrayList<Point> sequence, Point location) {
-        for (Point point : sequence) {
-            if (point.equals(location)) {
+    public boolean sequenceContainsLocation(ArrayList<Location> sequence, Location location) {
+        for (Location locn : sequence) {
+            if (locn.equals(location)) {
                 return true;
             }
         }
