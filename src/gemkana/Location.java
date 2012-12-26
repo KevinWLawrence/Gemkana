@@ -12,13 +12,30 @@ public class Location {
 
 //    <editor-fold defaultstate="collapsed" desc="Methods">
     /**
+     * @return computed hashcode for object, based on column and row values
+     */
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 59 * hash + this.column;
+        hash = 59 * hash + this.row;
+        return hash;
+    }
+    
+    /**
      * @location the Location to compare this object to
      * @return true if the objects are equal, false otherwise; the Locations are
      * considered to be equal if their respective column and row properties are 
      * equal.
      */
-    public boolean equals(Location location){
-        return ((location.getColumn() == column) && (location.getRow() == row));
+    @Override
+    public boolean equals(Object object){
+        boolean same = false;
+        
+        if ((object != null) && (object instanceof Location)){
+            same = (this.column == ((Location) object).column) && (this.row == ((Location) object).row);      
+        }
+        return same;
     }
     
     /**
