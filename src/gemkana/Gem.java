@@ -9,7 +9,9 @@ package gemkana;
  * @author kevin.lawrence
  */
 public class Gem /*extends Actor*/ {
-//  Test change 0001 KWL 
+//  Test change 0001 KWL
+//  Test change 0003 KWL
+    
 
 //  <editor-fold defaultstate="collapsed" desc="Properties">
     private GemType type = GemType.Emerald;
