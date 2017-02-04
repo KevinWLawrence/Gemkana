@@ -11,6 +11,7 @@ package gemkana;
 public class Gem /*extends Actor*/ {
 //  Test change 0001 KWL
 //  Test change 0003 KWL
+//  Test change 0004 KWL
     
 
 //  <editor-fold defaultstate="collapsed" desc="Properties">
